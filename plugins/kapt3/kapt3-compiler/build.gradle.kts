@@ -20,6 +20,7 @@ dependencies {
     api(project(":compiler:frontend"))
     api(project(":compiler:frontend.java"))
     api(project(":compiler:plugin-api"))
+    implementation(project(":compiler:backend.jvm.entrypoint"))
 
     compileOnly(toolsJarApi())
     compileOnly(project(":kotlin-annotation-processing-cli"))
