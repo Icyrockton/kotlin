@@ -656,6 +656,10 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
             (clazz.access or Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC) and
                     Opcodes.ACC_PRIVATE.inv() and Opcodes.ACC_PROTECTED.inv() // Remove private and protected modifiers
         }
+        (descriptor as? ClassDescriptor)?.kind == ClassKind.ENUM_CLASS -> {
+            // Enums are final in the bytecode, but "final enum" is not allowed in Java.
+            clazz.access and Opcodes.ACC_FINAL.inv()
+        }
         !isInner && isNested -> clazz.access or Opcodes.ACC_STATIC
         else -> clazz.access
     }
