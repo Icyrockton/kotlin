@@ -703,6 +703,13 @@ standaloneTest("runtime_basic_exit") {
     expectedExitStatus = 42
 }
 
+standaloneTest("runtime_available_processors") {
+    source = "runtime/basic/available_processors.kt"
+    outputChecker = {
+        s -> Integer.parseInt(s.trim()) == Runtime.getRuntime().availableProcessors()
+    }
+}
+
 task runtime_random(type: KonanLocalTest) {
     source = "runtime/basic/random.kt"
 }
