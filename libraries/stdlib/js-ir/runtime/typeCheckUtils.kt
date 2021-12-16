@@ -8,29 +8,59 @@ package kotlin.js
 private external interface Metadata {
     val interfaces: Array<Ctor>
     val suspendArity: Array<Int>?
+    var fastPrototype: Prototype?
 }
 
 private external interface Ctor {
     val `$metadata$`: Metadata?
-    val prototype: Ctor?
+    val prototype: Prototype?
 }
 
-private fun isInterfaceImpl(ctor: Ctor, iface: dynamic): Boolean {
-    if (ctor === iface) return true
+private external interface Prototype {
+    val constructor: Ctor?
+}
 
-    val metadata = ctor.`$metadata$`
-    if (metadata != null) {
-        val interfaces = metadata.interfaces
-        for (i in interfaces) {
-            if (isInterfaceImpl(i, iface)) {
-                return true
-            }
+private fun Ctor.getPrototype() = prototype?.let { js("Object").getPrototypeOf(it).unsafeCast<Prototype>() }
+
+private fun isInterfaceImpl(ctor: Ctor, iface: dynamic): Boolean {
+    val todo = js("[]")
+    val done = js("[]")
+
+    fun processCtor(classCtor: Ctor): Boolean {
+        if (classCtor === iface) {
+            return true
         }
+
+        if (done.indexOf(classCtor) == -1) {
+            done.push(classCtor)
+            todo.push(classCtor)
+        }
+        return false
     }
 
-    val superPrototype = if (ctor.prototype != null) js("Object").getPrototypeOf(ctor.prototype) else null
-    val superConstructor: Ctor? = if (superPrototype != null) superPrototype.constructor else null
-    return superConstructor != null && isInterfaceImpl(superConstructor, iface)
+    if (processCtor(ctor)) {
+        return true
+    }
+
+    while (todo.length.unsafeCast<Int>() != 0) {
+        val classCtor = todo.pop().unsafeCast<Ctor>()
+        val superPrototype = classCtor.`$metadata$`?.run {
+            for (i in interfaces) {
+                if (processCtor(i)) {
+                    return true
+                }
+            }
+            if (fastPrototype == null) {
+                fastPrototype = classCtor.getPrototype()
+            }
+            fastPrototype
+        }
+
+        if ((superPrototype ?: classCtor.getPrototype())?.constructor?.let { processCtor(it) } == true) {
+            return true
+        }
+    }
+    return false
 }
 
 internal fun isInterface(obj: dynamic, iface: dynamic): Boolean {
