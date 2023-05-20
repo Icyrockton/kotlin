@@ -303,7 +303,7 @@ class BodyGenerator(
             return
         }
 
-        body.buildRefNull(WasmHeapType.Type(wasmGcType), location) // this = null
+        body.buildRefNull(WasmHeapType.Simple.NullNone, location) // this = null
         generateCall(expression)
     }
 
@@ -314,7 +314,7 @@ class BodyGenerator(
         if (klassSymbol.owner.hasInterfaceSuperClass()) {
             body.buildGetGlobal(context.referenceGlobalClassITable(klassSymbol), location)
         } else {
-            body.buildRefNull(WasmHeapType.Simple.Data, location)
+            body.buildRefNull(WasmHeapType.Simple.Struct, location)
         }
 
         body.buildConstI32Symbol(context.referenceTypeId(klassSymbol), location)
@@ -435,7 +435,7 @@ class BodyGenerator(
                 body.commentGroupStart { "virtual call: ${function.fqNameWhenAvailable}" }
 
                 //TODO: check why it could be needed
-                generateRefNullCast(receiver.type, klass.defaultType, location)
+                generateRefCast(receiver.type, klass.defaultType, location)
 
                 body.buildStructGet(context.referenceGcType(klass.symbol), WasmSymbol(0), location)
                 body.buildStructGet(context.referenceVTableGcType(klass.symbol), WasmSymbol(vfSlot), location)
@@ -450,7 +450,7 @@ class BodyGenerator(
                     body.buildStructGet(context.referenceGcType(irBuiltIns.anyClass), WasmSymbol(1), location)
 
                     val classITableReference = context.referenceClassITableGcType(symbol)
-                    body.buildRefCastNullStatic(classITableReference, location)
+                    body.buildRefCastStatic(classITableReference, location)
                     body.buildStructGet(classITableReference, context.referenceClassITableInterfaceSlot(symbol), location)
 
                     val vfSlot = context.getInterfaceMetadata(symbol).methods
@@ -480,6 +480,15 @@ class BodyGenerator(
     private fun generateRefNullCast(fromType: IrType, toType: IrType, location: SourceLocation) {
         if (!isDownCastAlwaysSuccessInRuntime(fromType, toType)) {
             body.buildRefCastNullStatic(
+                toType = context.referenceGcType(toType.getRuntimeClass(irBuiltIns).symbol),
+                location
+            )
+        }
+    }
+
+    private fun generateRefCast(fromType: IrType, toType: IrType, location: SourceLocation) {
+        if (!isDownCastAlwaysSuccessInRuntime(fromType, toType)) {
+            body.buildRefCastStatic(
                 toType = context.referenceGcType(toType.getRuntimeClass(irBuiltIns).symbol),
                 location
             )
@@ -534,10 +543,17 @@ class BodyGenerator(
                     val parameterLocal = functionContext.referenceLocal(SyntheticLocalType.IS_INTERFACE_PARAMETER)
                     body.buildSetLocal(parameterLocal, location)
                     body.buildBlock("isInterface", WasmI32) { outerLabel ->
-                        body.buildBlock("isInterface", WasmRefNullType(WasmHeapType.Simple.Data)) { innerLabel ->
+                        body.buildBlock("isInterface", WasmRefNullType(WasmHeapType.Simple.Struct)) { innerLabel ->
                             body.buildGetLocal(parameterLocal, location)
                             body.buildStructGet(context.referenceGcType(irBuiltIns.anyClass), WasmSymbol(1), location)
-                            body.buildBrInstr(WasmOp.BR_ON_CAST_FAIL_DEPRECATED, innerLabel, classITable, location)
+
+                            body.buildBrInstr(
+                                WasmOp.BR_ON_CAST_FAIL,
+                                innerLabel,
+                                classITable,
+                                location,
+                            )
+
                             body.buildStructGet(classITable, context.referenceClassITableInterfaceSlot(irInterface.symbol), location)
                             body.buildInstr(WasmOp.REF_IS_NULL, location)
                             body.buildInstr(WasmOp.I32_EQZ, location)
@@ -581,7 +597,7 @@ class BodyGenerator(
                 val klass: IrClass = backendContext.inlineClassesUtils.getInlinedClass(toType)!!
                 val field = getInlineClassBackingField(klass)
 
-                generateRefNullCast(fromType, toType, location)
+                generateRefCast(fromType, toType, location)
                 generateInstanceFieldAccess(field, location)
             }
 
@@ -593,15 +609,17 @@ class BodyGenerator(
                 body.buildBlock("returnIfAny", WasmAnyRef) { innerLabel ->
                     body.buildGetLocal(functionContext.referenceLocal(0), location)
                     body.buildInstr(WasmOp.EXTERN_INTERNALIZE, location)
-                    body.buildBrInstr(WasmOp.BR_ON_NON_DATA_DEPRECATED, innerLabel, location)
+
                     body.buildBrInstr(
-                        WasmOp.BR_ON_CAST_FAIL_DEPRECATED,
+                        WasmOp.BR_ON_CAST_FAIL,
                         innerLabel,
                         context.referenceGcType(backendContext.irBuiltIns.anyClass),
-                        location
+                        location,
                     )
+
                     body.buildInstr(WasmOp.RETURN, location)
                 }
+                body.buildDrop(location)
             }
 
             wasmSymbols.wasmArrayCopy -> {
@@ -729,8 +747,14 @@ class BodyGenerator(
         // NOTHING -> TYPE -> TRUE
         if (actualType.isNothing()) return
 
-        // NOTHING? -> TYPE? -> TRUE
-        if (actualType.isNullableNothing() && expectedType.isNullable()) return
+        // NOTHING? -> TYPE? -> (NOTHING?)NULL
+        if (actualType.isNullableNothing() && expectedType.isNullable()) {
+            if (expectedType.getClass()?.isExternal == true) {
+                body.buildDrop(location)
+                body.buildRefNull(WasmHeapType.Simple.NullNoExtern, location)
+            }
+            return
+        }
 
         val expectedClassErased = expectedType.getRuntimeClass(irBuiltIns)
 
@@ -770,7 +794,7 @@ class BodyGenerator(
         // REF -> REF -> REF_CAST
         if (!expectedIsPrimitive) {
             if (expectedClassErased.isSubclassOf(actualClassErased)) {
-                generateRefNullCast(actualTypeErased, expectedTypeErased, location)
+                generateRefCast(actualTypeErased, expectedTypeErased, location)
             } else {
                 body.buildUnreachableForVerifier()
             }

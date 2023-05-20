@@ -303,11 +303,6 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
             runTest("compiler/testData/codegen/box/annotations/syntheticMethodForProperty.kt");
         }
 
-        @TestMetadata("typeAnnotationOnJdk6.kt")
-        public void testTypeAnnotationOnJdk6() throws Exception {
-            runTest("compiler/testData/codegen/box/annotations/typeAnnotationOnJdk6.kt");
-        }
-
         @TestMetadata("useTypeParameterAnnotationFromJava.kt")
         public void testUseTypeParameterAnnotationFromJava() throws Exception {
             runTest("compiler/testData/codegen/box/annotations/useTypeParameterAnnotationFromJava.kt");
@@ -16484,6 +16479,21 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
                 runTest("compiler/testData/codegen/box/inference/builderInference/nullability.kt");
             }
 
+            @TestMetadata("partiallyResolvedCallInReturnArgument.kt")
+            public void testPartiallyResolvedCallInReturnArgument() throws Exception {
+                runTest("compiler/testData/codegen/box/inference/builderInference/partiallyResolvedCallInReturnArgument.kt");
+            }
+
+            @TestMetadata("partiallyResolvedCallInReturnArgumentNonLast.kt")
+            public void testPartiallyResolvedCallInReturnArgumentNonLast() throws Exception {
+                runTest("compiler/testData/codegen/box/inference/builderInference/partiallyResolvedCallInReturnArgumentNonLast.kt");
+            }
+
+            @TestMetadata("partiallyResolvedCallInReturnArgumentNonUnit.kt")
+            public void testPartiallyResolvedCallInReturnArgumentNonUnit() throws Exception {
+                runTest("compiler/testData/codegen/box/inference/builderInference/partiallyResolvedCallInReturnArgumentNonUnit.kt");
+            }
+
             @TestMetadata("propagateInferenceSessionIntoDeclarationAnalyzers.kt")
             public void testPropagateInferenceSessionIntoDeclarationAnalyzers() throws Exception {
                 runTest("compiler/testData/codegen/box/inference/builderInference/propagateInferenceSessionIntoDeclarationAnalyzers.kt");
@@ -27362,6 +27372,32 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
                 public void testExpectPropertyAsDefaultArgument() throws Exception {
                     runTest("compiler/testData/codegen/box/multiplatform/k2/defaultArguments/expectPropertyAsDefaultArgument.kt");
                 }
+            }
+
+            @TestMetadata("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class MigratedOldTests extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInMigratedOldTests() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM, true);
+                }
+            }
+        }
+
+        @TestMetadata("compiler/testData/codegen/box/multiplatform/migratedOldTests")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class MigratedOldTests extends AbstractLightAnalysisModeTest {
+            private void runTest(String testDataFilePath) throws Exception {
+                KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM, testDataFilePath);
+            }
+
+            public void testAllFilesPresentInMigratedOldTests() throws Exception {
+                KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/multiplatform/migratedOldTests"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM, true);
             }
         }
 

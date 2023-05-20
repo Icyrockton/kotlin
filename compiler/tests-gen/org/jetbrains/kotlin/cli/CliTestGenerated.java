@@ -835,11 +835,6 @@ public class CliTestGenerated extends AbstractCliTest {
             runTest("compiler/testData/cli/jvm/jvm8Target.args");
         }
 
-        @TestMetadata("jvmDefaultAll.args")
-        public void testJvmDefaultAll() throws Exception {
-            runTest("compiler/testData/cli/jvm/jvmDefaultAll.args");
-        }
-
         @TestMetadata("jvmDefaultIncorrectValue.args")
         public void testJvmDefaultIncorrectValue() throws Exception {
             runTest("compiler/testData/cli/jvm/jvmDefaultIncorrectValue.args");
@@ -1321,6 +1316,11 @@ public class CliTestGenerated extends AbstractCliTest {
         @TestMetadata("fir.args")
         public void testFir() throws Exception {
             runTest("compiler/testData/cli/js/fir.args");
+        }
+
+        @TestMetadata("firLightTreeOn.args")
+        public void testFirLightTreeOn() throws Exception {
+            runTest("compiler/testData/cli/js/firLightTreeOn.args");
         }
 
         @TestMetadata("firMpp.args")

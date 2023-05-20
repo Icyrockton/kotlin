@@ -1,5 +1,8 @@
 // !LANGUAGE: +ContextReceivers
-// TARGET_BACKEND: JVM_IR
+// IGNORE_BACKEND: JS_IR
+
+// MUTE_SIGNATURE_COMPARISON_K2: ANY
+// ^ KT-57435
 
 data class Result(val i: Int)
 

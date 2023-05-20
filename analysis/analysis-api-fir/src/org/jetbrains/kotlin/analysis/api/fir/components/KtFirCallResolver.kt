@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.analysis.api.fir.symbols.KtFirArrayOfSymbolProvider.
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KtFirArrayOfSymbolProvider.arrayOfSymbol
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KtFirArrayOfSymbolProvider.arrayTypeToArrayOfCall
 import org.jetbrains.kotlin.analysis.api.fir.symbols.KtFirFunctionSymbol
+import org.jetbrains.kotlin.analysis.api.getModule
 import org.jetbrains.kotlin.analysis.api.impl.base.components.AbstractKtCallResolver
 import org.jetbrains.kotlin.analysis.api.lifetime.KtLifetimeToken
 import org.jetbrains.kotlin.analysis.api.signatures.KtCallableSignature
@@ -39,6 +40,7 @@ import org.jetbrains.kotlin.analysis.utils.printer.parentOfType
 import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.analysis.checkers.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.declarations.FirClass
+import org.jetbrains.kotlin.fir.declarations.FirResolvePhase
 import org.jetbrains.kotlin.fir.declarations.FirValueParameter
 import org.jetbrains.kotlin.fir.declarations.fullyExpandedClass
 import org.jetbrains.kotlin.fir.diagnostics.FirDiagnosticHolder
@@ -84,7 +86,11 @@ internal class KtFirCallResolver(
 ) : AbstractKtCallResolver(), KtFirAnalysisSessionComponent {
     private val equalsSymbolInAny: FirNamedFunctionSymbol by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val session = analysisSession.useSiteSession
-        val scope = session.declaredMemberScope(session.builtinTypes.anyType.toRegularClassSymbol(session)!!)
+        val scope = session.declaredMemberScope(
+            session.builtinTypes.anyType.toRegularClassSymbol(session)!!,
+            memberRequiredPhase = FirResolvePhase.STATUS,
+        )
+
         lateinit var result: FirNamedFunctionSymbol
         scope.processFunctionsByName(EQUALS) {
             result = it
@@ -1201,7 +1207,7 @@ internal class KtFirCallResolver(
             analysisSession.useSiteSession,
             analysisSession.getScopeSessionFor(analysisSession.useSiteSession),
             false,
-            memberRequiredPhase = null,
+            memberRequiredPhase = FirResolvePhase.STATUS,
         )
 
         var equalsSymbol: FirNamedFunctionSymbol? = null
@@ -1290,7 +1296,7 @@ internal class KtFirCallResolver(
     @KtAnalysisApiInternals
     override fun unresolvedKtCallError(psi: KtElement): KtErrorCallInfo {
         LOG.logErrorWithAttachment("${psi::class.simpleName} should always resolve to a KtCallInfo") {
-            withPsiEntry("psi", psi)
+            withPsiEntry("psi", psi, analysisSession::getModule)
             provideAdditionalAttachmentToUnresolvedCall(psi, this)
         }
 
@@ -1309,7 +1315,7 @@ internal class KtFirCallResolver(
                 "Error during resolving call ${element::class.java.name}",
                 exception = e,
             ) {
-                withPsiEntry("psi", element)
+                withPsiEntry("psi", element, analysisSession::getModule)
                 element.getOrBuildFir(firResolveSession)?.let { withFirEntry("fir", it) }
             }
         }

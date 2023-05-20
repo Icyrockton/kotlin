@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.analysis.api.fir.scopes
 
-import com.intellij.psi.JavaPsiFacade
 import org.jetbrains.kotlin.analysis.api.fir.KtFirAnalysisSession
 import org.jetbrains.kotlin.analysis.api.lifetime.KtLifetimeToken
 import org.jetbrains.kotlin.analysis.api.lifetime.withValidityAssertion
@@ -15,9 +14,6 @@ import org.jetbrains.kotlin.analysis.api.symbols.KtCallableSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtClassifierSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtConstructorSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KtPackageSymbol
-import org.jetbrains.kotlin.fir.extensions.FirExtensionService
-import org.jetbrains.kotlin.fir.extensions.declarationGenerators
-import org.jetbrains.kotlin.fir.extensions.extensionService
 import org.jetbrains.kotlin.fir.scopes.impl.FirPackageMemberScope
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
@@ -32,65 +28,28 @@ internal class KtFirPackageScope(
         FirPackageMemberScope(fqName, analysisSession.useSiteSession)
     }
 
-    private val firExtensionService: FirExtensionService
-        get() = firScope.session.extensionService
-
     override fun getPossibleCallableNames(): Set<Name> = withValidityAssertion {
-        hashSetOf<Name>().apply {
-            addAll(analysisSession.useSiteScopeDeclarationProvider.getTopLevelCallableNamesInPackage(fqName))
-            addAll(collectGeneratedTopLevelCallables())
-        }
+        DeclarationsInPackageProvider.getTopLevelCallableNamesInPackageProvider(fqName, analysisSession)
     }
 
     override fun getPossibleClassifierNames(): Set<Name> = withValidityAssertion {
-        hashSetOf<Name>().apply {
-            addAll(analysisSession.useSiteScopeDeclarationProvider.getTopLevelKotlinClassLikeDeclarationNamesInPackage(fqName))
-
-            JavaPsiFacade.getInstance(analysisSession.project)
-                .findPackage(fqName.asString())
-                ?.getClasses(analysisSession.useSiteAnalysisScope)
-                ?.mapNotNullTo(this) { it.name?.let(Name::identifier) }
-
-            addAll(collectGeneratedTopLevelClassifiers())
-        }
-    }
-
-    private fun collectGeneratedTopLevelCallables(): Set<Name> {
-        val generators = firExtensionService.declarationGenerators
-
-        val generatedTopLevelDeclarations = generators
-            .asSequence()
-            .flatMap {
-                // FIXME this function should be called only once during plugin's lifetime, so this usage is not really correct (1)
-                it.getTopLevelCallableIds()
-            }
-            .filter { it.packageName == fqName }
-            .map { it.callableName }
-
-        return generatedTopLevelDeclarations.toSet()
-    }
-
-    private fun collectGeneratedTopLevelClassifiers(): Set<Name> {
-        val declarationGenerators = firExtensionService.declarationGenerators
-
-        val generatedTopLevelClassifiers = declarationGenerators
-            .asSequence()
-            .flatMap {
-                // FIXME this function should be called only once during plugin's lifetime, so this usage is not really correct (2)
-                it.getTopLevelClassIds()
-            }
-            .filter { it.packageFqName == fqName }
-            .map { it.shortClassName }
-
-        return generatedTopLevelClassifiers.toSet()
+        DeclarationsInPackageProvider.getTopLevelClassifierNamesInPackageProvider(fqName, analysisSession)
     }
 
     override fun getCallableSymbols(nameFilter: KtScopeNameFilter): Sequence<KtCallableSymbol> = withValidityAssertion {
         firScope.getCallableSymbols(getPossibleCallableNames().filter(nameFilter), analysisSession.firSymbolBuilder)
     }
 
+    override fun getCallableSymbols(names: Collection<Name>): Sequence<KtCallableSymbol> = withValidityAssertion {
+        firScope.getCallableSymbols(names, analysisSession.firSymbolBuilder)
+    }
+
     override fun getClassifierSymbols(nameFilter: KtScopeNameFilter): Sequence<KtClassifierSymbol> = withValidityAssertion {
         firScope.getClassifierSymbols(getPossibleClassifierNames().filter(nameFilter), analysisSession.firSymbolBuilder)
+    }
+
+    override fun getClassifierSymbols(names: Collection<Name>): Sequence<KtClassifierSymbol> = withValidityAssertion {
+        firScope.getClassifierSymbols(names, analysisSession.firSymbolBuilder)
     }
 
     override fun getConstructors(): Sequence<KtConstructorSymbol> = withValidityAssertion {

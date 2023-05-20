@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.fir.scopes.*
 import org.jetbrains.kotlin.fir.scopes.impl.*
 import org.jetbrains.kotlin.fir.symbols.impl.*
 import org.jetbrains.kotlin.fir.symbols.lazyResolveToPhase
+import org.jetbrains.kotlin.fir.symbols.lazyResolveToPhaseWithCallableMembers
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtElement
@@ -78,17 +79,16 @@ internal class KtFirScopeProvider(
 
     override fun getMemberScope(classSymbol: KtSymbolWithMembers): KtScope {
         val firScope = classSymbol.withFirForScope { fir ->
-            fir.lazyResolveToPhase(FirResolvePhase.STATUS)
             val firSession = analysisSession.useSiteSession
             fir.unsubstitutedScope(
                 firSession,
                 getScopeSession(),
                 withForcedTypeCalculator = false,
-                memberRequiredPhase = null,
+                memberRequiredPhase = FirResolvePhase.STATUS,
             )
-        }?.applyIf(classSymbol is KtEnumEntrySymbol, ::EnumEntryContainingNamesAwareScope)
-            ?: return getEmptyScope()
-        return KtFirDelegatingScope(firScope, builder)
+        }?.applyIf(classSymbol is KtEnumEntrySymbol, ::EnumEntryContainingNamesAwareScope) ?: return getEmptyScope()
+
+        return KtFirDelegatingNamesAwareScope(firScope, builder)
     }
 
     override fun getStaticMemberScope(symbol: KtSymbolWithMembers): KtScope {
@@ -100,33 +100,34 @@ internal class KtFirScopeProvider(
                 getScopeSession(),
             )
         } ?: return getEmptyScope()
-        return KtFirDelegatingScope(firScope, builder)
+        return KtFirDelegatingNamesAwareScope(firScope, builder)
     }
 
     override fun getDeclaredMemberScope(classSymbol: KtSymbolWithMembers): KtScope {
         val useSiteSession = analysisSession.useSiteSession
         if (classSymbol is KtFirScriptSymbol) {
-            return KtFirDelegatingScope(
+            return KtFirDelegatingNamesAwareScope(
                 FirScriptDeclarationsScope(useSiteSession, classSymbol.firSymbol.fir),
-                builder
+                builder,
             )
         }
+
         val firScope = classSymbol.withFirForScope {
             when (val regularClass = classSymbol.firSymbol.fir) {
                 is FirJavaClass -> buildJavaEnhancementDeclaredMemberScope(useSiteSession, regularClass.symbol, getScopeSession())
-                else -> useSiteSession.declaredMemberScope(it)
+                else -> useSiteSession.declaredMemberScope(it, memberRequiredPhase = null)
             }
         } ?: return getEmptyScope()
-        return KtFirDelegatingScope(firScope, builder)
+
+        return KtFirDelegatingNamesAwareScope(firScope, builder)
     }
 
     override fun getDelegatedMemberScope(classSymbol: KtSymbolWithMembers): KtScope {
-        val declaredScope = (getDeclaredMemberScope(classSymbol) as? KtFirDelegatingScope)?.firScope
-            ?: return getEmptyScope()
+        val declaredScope = (getDeclaredMemberScope(classSymbol) as? KtFirDelegatingNamesAwareScope)?.firScope ?: return getEmptyScope()
         val firScope = classSymbol.withFirForScope { fir ->
-            fir.lazyResolveToPhase(FirResolvePhase.STATUS)
             val delegateFields = fir.delegateFields
             if (delegateFields.isNotEmpty()) {
+                fir.lazyResolveToPhaseWithCallableMembers(FirResolvePhase.STATUS)
                 val firSession = analysisSession.useSiteSession
                 FirDelegatedMemberScope(
                     firSession,
@@ -156,7 +157,7 @@ internal class KtFirScopeProvider(
 
 
     override fun getCompositeScope(subScopes: List<KtScope>): KtScope {
-        return KtCompositeScope(subScopes, token)
+        return KtCompositeScope.create(subScopes, token)
     }
 
     override fun getTypeScope(type: KtType): KtTypeScope? = getFirTypeScope(type)?.let { convertToKtTypeScope(it) }
@@ -231,9 +232,9 @@ internal class KtFirScopeProvider(
     private fun convertToKtScope(firScope: FirScope): KtScope {
         return when (firScope) {
             is FirAbstractSimpleImportingScope -> KtFirNonStarImportingScope(firScope, builder)
-            is FirAbstractStarImportingScope -> KtFirStarImportingScope(firScope, builder, analysisSession.useSiteScopeDeclarationProvider)
+            is FirAbstractStarImportingScope -> KtFirStarImportingScope(firScope, analysisSession)
             is FirPackageMemberScope -> createPackageScope(firScope.fqName)
-            is FirContainingNamesAwareScope -> KtFirDelegatingScope(firScope, builder)
+            is FirContainingNamesAwareScope -> KtFirDelegatingNamesAwareScope(firScope, builder)
             else -> TODO(firScope::class.toString())
         }
     }
@@ -279,7 +280,7 @@ internal class KtFirScopeProvider(
             firResolveSession.useSiteFirSession,
             getScopeSession(),
             FakeOverrideTypeCalculator.Forced,
-            requiredPhase = FirResolvePhase.STATUS,
+            requiredMembersPhase = FirResolvePhase.STATUS,
         )
     }
 

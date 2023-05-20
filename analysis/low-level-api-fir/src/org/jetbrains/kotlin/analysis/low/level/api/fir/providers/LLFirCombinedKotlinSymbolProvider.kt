@@ -9,9 +9,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analysis.low.level.api.fir.caches.NullableCaffeineCache
 import org.jetbrains.kotlin.analysis.low.level.api.fir.project.structure.llFirModuleData
+import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.LLFirSession
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.LLFirSymbolProviderNameCacheBase
 import org.jetbrains.kotlin.analysis.project.structure.KtModule
-import org.jetbrains.kotlin.analysis.project.structure.getKtModule
 import org.jetbrains.kotlin.analysis.providers.KotlinDeclarationProvider
 import org.jetbrains.kotlin.analysis.providers.createDeclarationProvider
 import org.jetbrains.kotlin.fir.FirSession
@@ -105,7 +105,7 @@ internal class LLFirCombinedKotlinSymbolProvider private constructor(
         val callableId = CallableId(packageFqName, name)
 
         declarationProvider.getTopLevelCallableFiles(callableId)
-            .groupBy { it.getKtModule(project) }
+            .groupBy { getModule(it) }
             .forEach { (ktModule, ktFiles) ->
                 // If `ktModule` cannot be found in the map, `ktFiles` cannot be processed by any of the available providers, because none
                 // of them belong to the correct module. We can skip in that case, because iterating through all providers wouldn't lead to
@@ -126,10 +126,10 @@ internal class LLFirCombinedKotlinSymbolProvider private constructor(
         symbolNameCache.getTopLevelCallableNamesInPackage(packageFqName)
 
     companion object {
-        fun merge(session: FirSession, project: Project, providers: List<LLFirProvider.SymbolProvider>): FirSymbolProvider? =
+        fun merge(session: LLFirSession, project: Project, providers: List<LLFirProvider.SymbolProvider>): FirSymbolProvider? =
             if (providers.size > 1) {
                 val combinedScope = GlobalSearchScope.union(providers.map { it.session.llFirModuleData.ktModule.contentScope })
-                val declarationProvider = project.createDeclarationProvider(combinedScope)
+                val declarationProvider = project.createDeclarationProvider(combinedScope, session.ktModule)
                 LLFirCombinedKotlinSymbolProvider(session, project, providers, declarationProvider)
             } else providers.singleOrNull()
     }

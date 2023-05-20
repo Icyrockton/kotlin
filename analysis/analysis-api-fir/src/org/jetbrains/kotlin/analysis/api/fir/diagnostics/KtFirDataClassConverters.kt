@@ -2571,6 +2571,24 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
             token,
         )
     }
+    add(FirErrors.VAR_IMPLEMENTED_BY_INHERITED_VAL.errorFactory) { firDiagnostic ->
+        VarImplementedByInheritedValErrorImpl(
+            firSymbolBuilder.classifierBuilder.buildClassLikeSymbol(firDiagnostic.a),
+            firSymbolBuilder.callableBuilder.buildCallableSymbol(firDiagnostic.b),
+            firSymbolBuilder.callableBuilder.buildCallableSymbol(firDiagnostic.c),
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
+    add(FirErrors.VAR_IMPLEMENTED_BY_INHERITED_VAL.warningFactory) { firDiagnostic ->
+        VarImplementedByInheritedValWarningImpl(
+            firSymbolBuilder.classifierBuilder.buildClassLikeSymbol(firDiagnostic.a),
+            firSymbolBuilder.callableBuilder.buildCallableSymbol(firDiagnostic.b),
+            firSymbolBuilder.callableBuilder.buildCallableSymbol(firDiagnostic.c),
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
     add(FirErrors.NON_FINAL_MEMBER_IN_FINAL_CLASS) { firDiagnostic ->
         NonFinalMemberInFinalClassImpl(
             firDiagnostic as KtPsiDiagnostic,
@@ -4620,13 +4638,6 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
             token,
         )
     }
-    add(FirJvmErrors.JVM_DEFAULT_IN_JVM6_TARGET) { firDiagnostic ->
-        JvmDefaultInJvm6TargetImpl(
-            firDiagnostic.a,
-            firDiagnostic as KtPsiDiagnostic,
-            token,
-        )
-    }
     add(FirJvmErrors.JVM_DEFAULT_IN_DECLARATION) { firDiagnostic ->
         JvmDefaultInDeclarationImpl(
             firDiagnostic.a,
@@ -4672,12 +4683,6 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
     }
     add(FirJvmErrors.NON_SOURCE_REPEATED_ANNOTATION) { firDiagnostic ->
         NonSourceRepeatedAnnotationImpl(
-            firDiagnostic as KtPsiDiagnostic,
-            token,
-        )
-    }
-    add(FirJvmErrors.REPEATED_ANNOTATION_TARGET6) { firDiagnostic ->
-        RepeatedAnnotationTarget6Impl(
             firDiagnostic as KtPsiDiagnostic,
             token,
         )
@@ -4793,30 +4798,6 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
     }
     add(FirJvmErrors.JVM_SYNTHETIC_ON_DELEGATE) { firDiagnostic ->
         JvmSyntheticOnDelegateImpl(
-            firDiagnostic as KtPsiDiagnostic,
-            token,
-        )
-    }
-    add(FirJvmErrors.DEFAULT_METHOD_CALL_FROM_JAVA6_TARGET.errorFactory) { firDiagnostic ->
-        DefaultMethodCallFromJava6TargetErrorImpl(
-            firDiagnostic as KtPsiDiagnostic,
-            token,
-        )
-    }
-    add(FirJvmErrors.DEFAULT_METHOD_CALL_FROM_JAVA6_TARGET.warningFactory) { firDiagnostic ->
-        DefaultMethodCallFromJava6TargetWarningImpl(
-            firDiagnostic as KtPsiDiagnostic,
-            token,
-        )
-    }
-    add(FirJvmErrors.INTERFACE_STATIC_METHOD_CALL_FROM_JAVA6_TARGET.errorFactory) { firDiagnostic ->
-        InterfaceStaticMethodCallFromJava6TargetErrorImpl(
-            firDiagnostic as KtPsiDiagnostic,
-            token,
-        )
-    }
-    add(FirJvmErrors.INTERFACE_STATIC_METHOD_CALL_FROM_JAVA6_TARGET.warningFactory) { firDiagnostic ->
-        InterfaceStaticMethodCallFromJava6TargetWarningImpl(
             firDiagnostic as KtPsiDiagnostic,
             token,
         )

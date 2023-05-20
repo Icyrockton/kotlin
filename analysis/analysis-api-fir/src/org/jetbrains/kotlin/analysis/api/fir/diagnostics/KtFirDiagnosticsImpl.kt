@@ -2193,6 +2193,22 @@ internal class VarOverriddenByValImpl(
     override val token: KtLifetimeToken,
 ) : KtFirDiagnostic.VarOverriddenByVal(), KtAbstractFirDiagnostic<KtNamedDeclaration>
 
+internal class VarImplementedByInheritedValErrorImpl(
+    override val classOrObject: KtClassLikeSymbol,
+    override val overridingDeclaration: KtCallableSymbol,
+    override val overriddenDeclaration: KtCallableSymbol,
+    override val firDiagnostic: KtPsiDiagnostic,
+    override val token: KtLifetimeToken,
+) : KtFirDiagnostic.VarImplementedByInheritedValError(), KtAbstractFirDiagnostic<KtNamedDeclaration>
+
+internal class VarImplementedByInheritedValWarningImpl(
+    override val classOrObject: KtClassLikeSymbol,
+    override val overridingDeclaration: KtCallableSymbol,
+    override val overriddenDeclaration: KtCallableSymbol,
+    override val firDiagnostic: KtPsiDiagnostic,
+    override val token: KtLifetimeToken,
+) : KtFirDiagnostic.VarImplementedByInheritedValWarning(), KtAbstractFirDiagnostic<KtNamedDeclaration>
+
 internal class NonFinalMemberInFinalClassImpl(
     override val firDiagnostic: KtPsiDiagnostic,
     override val token: KtLifetimeToken,
@@ -3887,12 +3903,6 @@ internal class IllegalJavaLangRecordSupertypeImpl(
     override val token: KtLifetimeToken,
 ) : KtFirDiagnostic.IllegalJavaLangRecordSupertype(), KtAbstractFirDiagnostic<PsiElement>
 
-internal class JvmDefaultInJvm6TargetImpl(
-    override val annotation: String,
-    override val firDiagnostic: KtPsiDiagnostic,
-    override val token: KtLifetimeToken,
-) : KtFirDiagnostic.JvmDefaultInJvm6Target(), KtAbstractFirDiagnostic<PsiElement>
-
 internal class JvmDefaultInDeclarationImpl(
     override val annotation: String,
     override val firDiagnostic: KtPsiDiagnostic,
@@ -3933,11 +3943,6 @@ internal class NonSourceRepeatedAnnotationImpl(
     override val firDiagnostic: KtPsiDiagnostic,
     override val token: KtLifetimeToken,
 ) : KtFirDiagnostic.NonSourceRepeatedAnnotation(), KtAbstractFirDiagnostic<KtAnnotationEntry>
-
-internal class RepeatedAnnotationTarget6Impl(
-    override val firDiagnostic: KtPsiDiagnostic,
-    override val token: KtLifetimeToken,
-) : KtFirDiagnostic.RepeatedAnnotationTarget6(), KtAbstractFirDiagnostic<KtAnnotationEntry>
 
 internal class RepeatedAnnotationWithContainerImpl(
     override val name: ClassId,
@@ -4038,26 +4043,6 @@ internal class JvmSyntheticOnDelegateImpl(
     override val firDiagnostic: KtPsiDiagnostic,
     override val token: KtLifetimeToken,
 ) : KtFirDiagnostic.JvmSyntheticOnDelegate(), KtAbstractFirDiagnostic<KtAnnotationEntry>
-
-internal class DefaultMethodCallFromJava6TargetErrorImpl(
-    override val firDiagnostic: KtPsiDiagnostic,
-    override val token: KtLifetimeToken,
-) : KtFirDiagnostic.DefaultMethodCallFromJava6TargetError(), KtAbstractFirDiagnostic<PsiElement>
-
-internal class DefaultMethodCallFromJava6TargetWarningImpl(
-    override val firDiagnostic: KtPsiDiagnostic,
-    override val token: KtLifetimeToken,
-) : KtFirDiagnostic.DefaultMethodCallFromJava6TargetWarning(), KtAbstractFirDiagnostic<PsiElement>
-
-internal class InterfaceStaticMethodCallFromJava6TargetErrorImpl(
-    override val firDiagnostic: KtPsiDiagnostic,
-    override val token: KtLifetimeToken,
-) : KtFirDiagnostic.InterfaceStaticMethodCallFromJava6TargetError(), KtAbstractFirDiagnostic<PsiElement>
-
-internal class InterfaceStaticMethodCallFromJava6TargetWarningImpl(
-    override val firDiagnostic: KtPsiDiagnostic,
-    override val token: KtLifetimeToken,
-) : KtFirDiagnostic.InterfaceStaticMethodCallFromJava6TargetWarning(), KtAbstractFirDiagnostic<PsiElement>
 
 internal class SubclassCantCallCompanionProtectedNonStaticImpl(
     override val firDiagnostic: KtPsiDiagnostic,

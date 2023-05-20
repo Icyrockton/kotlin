@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.util.DumpIrTreeOptions
 import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.dumpTreesFromLineNumber
 import org.jetbrains.kotlin.name.ClassId
@@ -61,15 +62,20 @@ class IrTextDumpHandler(testServices: TestServices) : AbstractIrHandler(testServ
     override fun processModule(module: TestModule, info: IrBackendInput) {
         if (DUMP_IR !in module.directives) return
 
+        val dumpOptions = DumpIrTreeOptions(
+            normalizeNames = true,
+            printFacadeClassInFqNames = false,
+        )
+
         info.processAllIrModuleFragments(module) { irModuleFragment, moduleName ->
             val builder = baseDumper.builderForModule(moduleName)
             val testFileToIrFile = irModuleFragment.files.groupWithTestFiles(module)
 
             for ((testFile, irFile) in testFileToIrFile) {
                 if (testFile?.directives?.contains(EXTERNAL_FILE) == true) continue
-                var actualDump = irFile.dumpTreesFromLineNumber(lineNumber = 0, normalizeNames = true)
+                var actualDump = irFile.dumpTreesFromLineNumber(lineNumber = 0, dumpOptions)
                 if (actualDump.isEmpty()) {
-                    actualDump = irFile.dumpTreesFromLineNumber(lineNumber = UNDEFINED_OFFSET, normalizeNames = true)
+                    actualDump = irFile.dumpTreesFromLineNumber(lineNumber = UNDEFINED_OFFSET, dumpOptions)
                 }
                 builder.append(actualDump)
             }

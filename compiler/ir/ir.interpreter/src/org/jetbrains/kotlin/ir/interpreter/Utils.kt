@@ -35,7 +35,6 @@ import kotlin.math.floor
 val intrinsicConstEvaluationAnnotation = FqName("kotlin.internal.IntrinsicConstEvaluation")
 val compileTimeAnnotation = FqName("kotlin.CompileTimeCalculation")
 val evaluateIntrinsicAnnotation = FqName("kotlin.EvaluateIntrinsic")
-val contractsDslAnnotation = FqName("kotlin.internal.ContractsDsl")
 
 internal val IrElement.fqName: String
     get() = (this as? IrDeclarationWithName)?.fqNameWhenAvailable?.asString() ?: ""
@@ -220,7 +219,7 @@ internal fun IrFieldAccessExpression.accessesTopLevelOrObjectField(): Boolean {
 
 internal fun IrClass.getOriginalPropertyByName(name: String): IrProperty {
     val property = this.properties.single { it.name.asString() == name }
-    return (property.getter!!.getLastOverridden() as IrSimpleFunction).correspondingPropertySymbol!!.owner
+    return property.getter!!.getLastOverridden().property!!
 }
 
 internal fun IrFunctionAccessExpression.getFunctionThatContainsDefaults(): IrFunction {
@@ -343,3 +342,7 @@ internal fun IrEnumEntry.toState(irBuiltIns: IrBuiltIns): Common {
 
     return enumClassObject
 }
+
+internal val IrFunction.property: IrProperty?
+    get() = (this as? IrSimpleFunction)?.correspondingPropertySymbol?.owner
+

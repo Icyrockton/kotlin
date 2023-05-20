@@ -1,5 +1,9 @@
-// TARGET_BACKEND: JVM
 // WITH_STDLIB
+// IGNORE_BACKEND: JS_IR
+
+// MUTE_SIGNATURE_COMPARISON_K2: JVM_IR
+// ^ KT-57778
+
 private fun test(x: Long) =
     countIssues {
         +(spentTime lessEq 2 * 60)

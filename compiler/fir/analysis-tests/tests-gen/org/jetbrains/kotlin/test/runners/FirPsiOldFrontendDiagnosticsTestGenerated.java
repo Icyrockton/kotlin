@@ -226,6 +226,12 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
         }
 
         @Test
+        @TestMetadata("delegationTypeMismatch.kt")
+        public void testDelegationTypeMismatch() throws Exception {
+            runTest("compiler/testData/diagnostics/tests/delegationTypeMismatch.kt");
+        }
+
+        @Test
         @TestMetadata("DeprecatedGetSetPropertyDelegateConvention.kt")
         public void testDeprecatedGetSetPropertyDelegateConvention() throws Exception {
             runTest("compiler/testData/diagnostics/tests/DeprecatedGetSetPropertyDelegateConvention.kt");
@@ -1255,6 +1261,12 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
         @TestMetadata("Variance.kt")
         public void testVariance() throws Exception {
             runTest("compiler/testData/diagnostics/tests/Variance.kt");
+        }
+
+        @Test
+        @TestMetadata("whileConditionExpectedType.kt")
+        public void testWhileConditionExpectedType() throws Exception {
+            runTest("compiler/testData/diagnostics/tests/whileConditionExpectedType.kt");
         }
 
         @Nested
@@ -2561,12 +2573,6 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
                 @TestMetadata("javaRepeatableInKotlin.kt")
                 public void testJavaRepeatableInKotlin() throws Exception {
                     runTest("compiler/testData/diagnostics/tests/annotations/repeatable/javaRepeatableInKotlin.kt");
-                }
-
-                @Test
-                @TestMetadata("javaRepeatableJvmTarget6.kt")
-                public void testJavaRepeatableJvmTarget6() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/annotations/repeatable/javaRepeatableJvmTarget6.kt");
                 }
 
                 @Test
@@ -5070,6 +5076,12 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
             @TestMetadata("kt51062.kt")
             public void testKt51062() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/checkArguments/kt51062.kt");
+            }
+
+            @Test
+            @TestMetadata("kt51062Error.kt")
+            public void testKt51062Error() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/checkArguments/kt51062Error.kt");
             }
 
             @Test
@@ -15192,6 +15204,12 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
                 }
 
                 @Test
+                @TestMetadata("incompleteCallInReturnArgumentsWithProperExpectType.kt")
+                public void testIncompleteCallInReturnArgumentsWithProperExpectType() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/inference/builderInference/incompleteCallInReturnArgumentsWithProperExpectType.kt");
+                }
+
+                @Test
                 @TestMetadata("invalidateKeys.kt")
                 public void testInvalidateKeys() throws Exception {
                     runTest("compiler/testData/diagnostics/tests/inference/builderInference/invalidateKeys.kt");
@@ -23744,6 +23762,18 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
                 runTest("compiler/testData/diagnostics/tests/override/ToAbstractMembersFromSuper-kt1996.kt");
             }
 
+            @Test
+            @TestMetadata("varImplementedByInheritedVal.kt")
+            public void testVarImplementedByInheritedVal() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/override/varImplementedByInheritedVal.kt");
+            }
+
+            @Test
+            @TestMetadata("varImplementedByInheritedValError.kt")
+            public void testVarImplementedByInheritedValError() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/override/varImplementedByInheritedValError.kt");
+            }
+
             @Nested
             @TestMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance")
             @TestDataPath("$PROJECT_ROOT")
@@ -32095,6 +32125,18 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
             }
 
             @Test
+            @TestMetadata("suspendExtFunctionTypeAsSuperType.kt")
+            public void testSuspendExtFunctionTypeAsSuperType() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/subtyping/suspendExtFunctionTypeAsSuperType.kt");
+            }
+
+            @Test
+            @TestMetadata("suspendExtFunctionTypeAsSuperTypeRestrictionLifted.kt")
+            public void testSuspendExtFunctionTypeAsSuperTypeRestrictionLifted() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/subtyping/suspendExtFunctionTypeAsSuperTypeRestrictionLifted.kt");
+            }
+
+            @Test
             @TestMetadata("topLevelAnonymousObjects.kt")
             public void testTopLevelAnonymousObjects() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/subtyping/topLevelAnonymousObjects.kt");
@@ -36545,12 +36587,6 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
                     }
 
                     @Test
-                    @TestMetadata("target6.kt")
-                    public void testTarget6() throws Exception {
-                        runTest("compiler/testData/diagnostics/testsWithStdLib/annotations/jvmDefault/jvmDefaultWithCompatibility/target6.kt");
-                    }
-
-                    @Test
                     @TestMetadata("target8.kt")
                     public void testTarget8() throws Exception {
                         runTest("compiler/testData/diagnostics/testsWithStdLib/annotations/jvmDefault/jvmDefaultWithCompatibility/target8.kt");
@@ -36570,12 +36606,6 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
                     @Test
                     public void testAllFilesPresentInJvmDefaultWithoutCompatibility() throws Exception {
                         KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/testsWithStdLib/annotations/jvmDefault/jvmDefaultWithoutCompatibility"), Pattern.compile("^(.+)\\.kt$"), Pattern.compile("^(.+)\\.(reversed|fir|ll)\\.kts?$"), true);
-                    }
-
-                    @Test
-                    @TestMetadata("target6.kt")
-                    public void testTarget6() throws Exception {
-                        runTest("compiler/testData/diagnostics/testsWithStdLib/annotations/jvmDefault/jvmDefaultWithoutCompatibility/target6.kt");
                     }
 
                     @Test
@@ -36771,12 +36801,6 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
                 @TestMetadata("interfaceCompanion_LL12.kt")
                 public void testInterfaceCompanion_LL12() throws Exception {
                     runTest("compiler/testData/diagnostics/testsWithStdLib/annotations/jvmStatic/interfaceCompanion_LL12.kt");
-                }
-
-                @Test
-                @TestMetadata("interfaceCompanion_LL13_16.kt")
-                public void testInterfaceCompanion_LL13_16() throws Exception {
-                    runTest("compiler/testData/diagnostics/testsWithStdLib/annotations/jvmStatic/interfaceCompanion_LL13_16.kt");
                 }
 
                 @Test

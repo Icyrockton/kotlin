@@ -1,6 +1,9 @@
 // FIR_IDENTICAL
 // !LANGUAGE: +ContextReceivers
-// TARGET_BACKEND: JVM_IR
+// IGNORE_BACKEND: JS_IR
+
+// MUTE_SIGNATURE_COMPARISON_K2: ANY
+// ^ KT-57435
 
 interface Canvas {
     val suffix: String

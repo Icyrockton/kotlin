@@ -329,7 +329,8 @@ extra["compilerArtifactsForIde"] = listOfNotNull(
     ":kotlin-stdlib-jdk7",
     ":kotlin-stdlib-jdk8",
     ":kotlin-reflect",
-    ":kotlin-main-kts"
+    ":kotlin-main-kts",
+    ":kotlin-dom-api-compat"
 )
 
 val coreLibProjects by extra {
@@ -354,6 +355,7 @@ val coreLibProjects by extra {
 val projectsWithEnabledContextReceivers by extra {
     listOf(
         ":core:descriptors.jvm",
+        ":compiler:resolution.common",
         ":compiler:frontend.common",
         ":compiler:fir:resolve",
         ":compiler:fir:plugin-utils",
@@ -770,6 +772,7 @@ tasks {
         dependsOn(":native:kotlin-klib-commonizer-api:test")
         dependsOn(":kotlin-tooling-core:check")
         dependsOn(":kotlin-tooling-metadata:check")
+        dependsOn(":compiler:build-tools:kotlin-build-tools-api:check")
     }
 
     register("examplesTest") {

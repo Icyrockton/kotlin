@@ -414,12 +414,6 @@ public class FirPsiBlackBoxCodegenTestGenerated extends AbstractFirPsiBlackBoxCo
         }
 
         @Test
-        @TestMetadata("typeAnnotationOnJdk6.kt")
-        public void testTypeAnnotationOnJdk6() throws Exception {
-            runTest("compiler/testData/codegen/box/annotations/typeAnnotationOnJdk6.kt");
-        }
-
-        @Test
         @TestMetadata("useTypeParameterAnnotationFromJava.kt")
         public void testUseTypeParameterAnnotationFromJava() throws Exception {
             runTest("compiler/testData/codegen/box/annotations/useTypeParameterAnnotationFromJava.kt");
@@ -20705,6 +20699,24 @@ public class FirPsiBlackBoxCodegenTestGenerated extends AbstractFirPsiBlackBoxCo
             }
 
             @Test
+            @TestMetadata("partiallyResolvedCallInReturnArgument.kt")
+            public void testPartiallyResolvedCallInReturnArgument() throws Exception {
+                runTest("compiler/testData/codegen/box/inference/builderInference/partiallyResolvedCallInReturnArgument.kt");
+            }
+
+            @Test
+            @TestMetadata("partiallyResolvedCallInReturnArgumentNonLast.kt")
+            public void testPartiallyResolvedCallInReturnArgumentNonLast() throws Exception {
+                runTest("compiler/testData/codegen/box/inference/builderInference/partiallyResolvedCallInReturnArgumentNonLast.kt");
+            }
+
+            @Test
+            @TestMetadata("partiallyResolvedCallInReturnArgumentNonUnit.kt")
+            public void testPartiallyResolvedCallInReturnArgumentNonUnit() throws Exception {
+                runTest("compiler/testData/codegen/box/inference/builderInference/partiallyResolvedCallInReturnArgumentNonUnit.kt");
+            }
+
+            @Test
             @TestMetadata("propagateInferenceSessionIntoDeclarationAnalyzers.kt")
             public void testPropagateInferenceSessionIntoDeclarationAnalyzers() throws Exception {
                 runTest("compiler/testData/codegen/box/inference/builderInference/propagateInferenceSessionIntoDeclarationAnalyzers.kt");
@@ -28493,9 +28505,21 @@ public class FirPsiBlackBoxCodegenTestGenerated extends AbstractFirPsiBlackBoxCo
             }
 
             @Test
+            @TestMetadata("kCallableNameWithSideEffect.kt")
+            public void testKCallableNameWithSideEffect() throws Exception {
+                runTest("compiler/testData/codegen/box/involvesIrInterpreter/intrinsicConst/kCallableNameWithSideEffect.kt");
+            }
+
+            @Test
             @TestMetadata("kt53272.kt")
             public void testKt53272() throws Exception {
                 runTest("compiler/testData/codegen/box/involvesIrInterpreter/intrinsicConst/kt53272.kt");
+            }
+
+            @Test
+            @TestMetadata("kt58717.kt")
+            public void testKt58717() throws Exception {
+                runTest("compiler/testData/codegen/box/involvesIrInterpreter/intrinsicConst/kt58717.kt");
             }
         }
 
@@ -33594,6 +33618,80 @@ public class FirPsiBlackBoxCodegenTestGenerated extends AbstractFirPsiBlackBoxCo
                 public void testWithTypeParameter() throws Exception {
                     runTest("compiler/testData/codegen/box/multiplatform/k2/defaultArguments/withTypeParameter.kt");
                 }
+            }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests")
+            @TestDataPath("$PROJECT_ROOT")
+            public class MigratedOldTests {
+                @Test
+                public void testAllFilesPresentInMigratedOldTests() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @Test
+                @TestMetadata("mpp1.kt")
+                public void testMpp1() throws Exception {
+                    runTest("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests/mpp1.kt");
+                }
+
+                @Test
+                @TestMetadata("mpp2.kt")
+                public void testMpp2() throws Exception {
+                    runTest("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests/mpp2.kt");
+                }
+
+                @Test
+                @TestMetadata("mpp_default_args.kt")
+                public void testMpp_default_args() throws Exception {
+                    runTest("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests/mpp_default_args.kt");
+                }
+
+                @Test
+                @TestMetadata("mpp_optional_expectation.kt")
+                public void testMpp_optional_expectation() throws Exception {
+                    runTest("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests/mpp_optional_expectation.kt");
+                }
+
+                @Test
+                @TestMetadata("remap_expect_property_ref.kt")
+                public void testRemap_expect_property_ref() throws Exception {
+                    runTest("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests/remap_expect_property_ref.kt");
+                }
+            }
+        }
+
+        @Nested
+        @TestMetadata("compiler/testData/codegen/box/multiplatform/migratedOldTests")
+        @TestDataPath("$PROJECT_ROOT")
+        public class MigratedOldTests {
+            @Test
+            public void testAllFilesPresentInMigratedOldTests() throws Exception {
+                KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/multiplatform/migratedOldTests"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+            }
+
+            @Test
+            @TestMetadata("mpp1.kt")
+            public void testMpp1() throws Exception {
+                runTest("compiler/testData/codegen/box/multiplatform/migratedOldTests/mpp1.kt");
+            }
+
+            @Test
+            @TestMetadata("mpp2.kt")
+            public void testMpp2() throws Exception {
+                runTest("compiler/testData/codegen/box/multiplatform/migratedOldTests/mpp2.kt");
+            }
+
+            @Test
+            @TestMetadata("mpp_default_args.kt")
+            public void testMpp_default_args() throws Exception {
+                runTest("compiler/testData/codegen/box/multiplatform/migratedOldTests/mpp_default_args.kt");
+            }
+
+            @Test
+            @TestMetadata("remap_expect_property_ref.kt")
+            public void testRemap_expect_property_ref() throws Exception {
+                runTest("compiler/testData/codegen/box/multiplatform/migratedOldTests/remap_expect_property_ref.kt");
             }
         }
 

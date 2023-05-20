@@ -8,10 +8,12 @@ package org.jetbrains.kotlin.analysis.low.level.api.fir.transformers
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.targets.LLFirResolveTarget
 import org.jetbrains.kotlin.analysis.low.level.api.fir.file.builder.LLFirLockProvider
 import org.jetbrains.kotlin.analysis.low.level.api.fir.lazy.resolve.LLFirPhaseUpdater
+import org.jetbrains.kotlin.analysis.low.level.api.fir.util.checkExpectForActualIsResolved
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.checkPhase
 import org.jetbrains.kotlin.fir.FirElementWithResolveState
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.*
+import org.jetbrains.kotlin.fir.expressions.FirStatement
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirTowerDataContextCollector
 import org.jetbrains.kotlin.fir.resolve.transformers.mpp.FirExpectActualMatcherTransformer
@@ -34,7 +36,10 @@ internal object LLFirExpectActualMatcherLazyResolver : LLFirLazyResolver(FirReso
 
     override fun checkIsResolved(target: FirElementWithResolveState) {
         target.checkPhase(resolverPhase)
-        // TODO check if expect-actual matching is present
+        if (target is FirMemberDeclaration && target.canHaveExpectCounterPart()) {
+            checkExpectForActualIsResolved(target)
+        }
+
         checkNestedDeclarationsAreResolved(target)
     }
 }
@@ -45,7 +50,12 @@ private class LLFirExpectActualMatchingTargetResolver(
     session: FirSession,
     scopeSession: ScopeSession,
 ) : LLFirTargetResolver(target, lockProvider, FirResolvePhase.EXPECT_ACTUAL_MATCHING) {
-    private val transformer = FirExpectActualMatcherTransformer(session, scopeSession)
+    private val transformer = object : FirExpectActualMatcherTransformer(session, scopeSession) {
+        override fun transformRegularClass(regularClass: FirRegularClass, data: Nothing?): FirStatement {
+            transformMemberDeclaration(regularClass)
+            return regularClass
+        }
+    }
 
     override fun withFile(firFile: FirFile, action: () -> Unit) {
         action()
@@ -62,13 +72,14 @@ private class LLFirExpectActualMatchingTargetResolver(
         transformer.transformMemberDeclaration(target)
     }
 
-    private fun FirMemberDeclaration.canHaveExpectCounterPart(): Boolean = when (this) {
-        is FirEnumEntry -> true
-        is FirProperty -> true
-        is FirConstructor -> true
-        is FirSimpleFunction -> true
-        is FirRegularClass -> true
-        is FirTypeAlias -> true
-        else -> false
-    }
+}
+
+private fun FirMemberDeclaration.canHaveExpectCounterPart(): Boolean = when (this) {
+    is FirEnumEntry -> true
+    is FirProperty -> true
+    is FirConstructor -> true
+    is FirSimpleFunction -> true
+    is FirRegularClass -> true
+    is FirTypeAlias -> true
+    else -> false
 }

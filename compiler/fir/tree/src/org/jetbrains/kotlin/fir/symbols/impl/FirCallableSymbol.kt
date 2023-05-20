@@ -10,31 +10,44 @@ import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.lazyResolveToPhase
 import org.jetbrains.kotlin.fir.types.*
+import org.jetbrains.kotlin.mpp.CallableSymbolMarker
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
 
-abstract class FirCallableSymbol<D : FirCallableDeclaration> : FirBasedSymbol<D>() {
+abstract class FirCallableSymbol<D : FirCallableDeclaration> : FirBasedSymbol<D>(), CallableSymbolMarker {
     abstract val callableId: CallableId
 
     val resolvedReturnTypeRef: FirResolvedTypeRef
         get() {
             ensureType(fir.returnTypeRef)
-            return fir.returnTypeRef as FirResolvedTypeRef
+            val returnTypeRef = fir.returnTypeRef
+            if (returnTypeRef !is FirResolvedTypeRef) {
+                errorInLazyResolve("returnTypeRef", returnTypeRef::class, FirResolvedTypeRef::class)
+            }
+
+            return returnTypeRef
         }
 
     val resolvedReturnType: ConeKotlinType
         get() = resolvedReturnTypeRef.coneType
 
-
     val resolvedReceiverTypeRef: FirResolvedTypeRef?
-        get() {
-            ensureType(fir.receiverParameter?.typeRef)
-            return fir.receiverParameter?.typeRef as FirResolvedTypeRef?
+        get() = calculateReceiverTypeRef()
+
+    private fun calculateReceiverTypeRef(): FirResolvedTypeRef? {
+        val receiverParameter = fir.receiverParameter ?: return null
+        ensureType(receiverParameter.typeRef)
+        val receiverTypeRef = receiverParameter.typeRef
+        if (receiverTypeRef !is FirResolvedTypeRef) {
+            errorInLazyResolve("receiverTypeRef", receiverTypeRef::class, FirResolvedTypeRef::class)
         }
+
+        return receiverTypeRef
+    }
 
     val receiverParameter: FirReceiverParameter?
         get() {
-            ensureType(fir.receiverParameter?.typeRef)
+            calculateReceiverTypeRef()
             return fir.receiverParameter
         }
 
@@ -46,19 +59,13 @@ abstract class FirCallableSymbol<D : FirCallableDeclaration> : FirBasedSymbol<D>
         }
 
     val resolvedStatus: FirResolvedDeclarationStatus
-        get() {
-            lazyResolveToPhase(FirResolvePhase.STATUS)
-            return fir.status as FirResolvedDeclarationStatus
-        }
+        get() = fir.resolvedStatus()
 
     val rawStatus: FirDeclarationStatus
         get() = fir.status
 
-
     val typeParameterSymbols: List<FirTypeParameterSymbol>
-        get() {
-            return fir.typeParameters.map { it.symbol }
-        }
+        get() = fir.typeParameters.map { it.symbol }
 
     val dispatchReceiverType: ConeSimpleKotlinType?
         get() = fir.dispatchReceiverType

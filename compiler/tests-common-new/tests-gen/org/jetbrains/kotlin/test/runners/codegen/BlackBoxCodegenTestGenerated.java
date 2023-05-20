@@ -348,12 +348,6 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         }
 
         @Test
-        @TestMetadata("typeAnnotationOnJdk6.kt")
-        public void testTypeAnnotationOnJdk6() throws Exception {
-            runTest("compiler/testData/codegen/box/annotations/typeAnnotationOnJdk6.kt");
-        }
-
-        @Test
         @TestMetadata("useTypeParameterAnnotationFromJava.kt")
         public void testUseTypeParameterAnnotationFromJava() throws Exception {
             runTest("compiler/testData/codegen/box/annotations/useTypeParameterAnnotationFromJava.kt");
@@ -19781,6 +19775,24 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             }
 
             @Test
+            @TestMetadata("partiallyResolvedCallInReturnArgument.kt")
+            public void testPartiallyResolvedCallInReturnArgument() throws Exception {
+                runTest("compiler/testData/codegen/box/inference/builderInference/partiallyResolvedCallInReturnArgument.kt");
+            }
+
+            @Test
+            @TestMetadata("partiallyResolvedCallInReturnArgumentNonLast.kt")
+            public void testPartiallyResolvedCallInReturnArgumentNonLast() throws Exception {
+                runTest("compiler/testData/codegen/box/inference/builderInference/partiallyResolvedCallInReturnArgumentNonLast.kt");
+            }
+
+            @Test
+            @TestMetadata("partiallyResolvedCallInReturnArgumentNonUnit.kt")
+            public void testPartiallyResolvedCallInReturnArgumentNonUnit() throws Exception {
+                runTest("compiler/testData/codegen/box/inference/builderInference/partiallyResolvedCallInReturnArgumentNonUnit.kt");
+            }
+
+            @Test
             @TestMetadata("propagateInferenceSessionIntoDeclarationAnalyzers.kt")
             public void testPropagateInferenceSessionIntoDeclarationAnalyzers() throws Exception {
                 runTest("compiler/testData/codegen/box/inference/builderInference/propagateInferenceSessionIntoDeclarationAnalyzers.kt");
@@ -32094,6 +32106,26 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
                 public void testWithTypeParameter() throws Exception {
                     runTest("compiler/testData/codegen/box/multiplatform/k2/defaultArguments/withTypeParameter.kt");
                 }
+            }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests")
+            @TestDataPath("$PROJECT_ROOT")
+            public class MigratedOldTests {
+                @Test
+                public void testAllFilesPresentInMigratedOldTests() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/multiplatform/k2/migratedOldTests"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM, true);
+                }
+            }
+        }
+
+        @Nested
+        @TestMetadata("compiler/testData/codegen/box/multiplatform/migratedOldTests")
+        @TestDataPath("$PROJECT_ROOT")
+        public class MigratedOldTests {
+            @Test
+            public void testAllFilesPresentInMigratedOldTests() throws Exception {
+                KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/multiplatform/migratedOldTests"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM, true);
             }
         }
 

@@ -606,6 +606,7 @@ import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.VARIABLE_NEVER_RE
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.VARIABLE_WITH_NO_TYPE_NO_INITIALIZER
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.VARIANCE_ON_TYPE_PARAMETER_NOT_ALLOWED
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.VAR_ANNOTATION_PARAMETER
+import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.VAR_IMPLEMENTED_BY_INHERITED_VAL
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.VAR_OVERRIDDEN_BY_VAL
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.VAR_OVERRIDDEN_BY_VAL_BY_DELEGATION
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors.VAR_TYPE_MISMATCH_ON_INHERITANCE
@@ -1461,6 +1462,13 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
             FQ_NAMES_IN_TYPES,
             FQ_NAMES_IN_TYPES
         )
+        map.put(
+            VAR_IMPLEMENTED_BY_INHERITED_VAL,
+            "{0} implements var-property {1} by inherited val-property {2}",
+            RENDER_CLASS_OR_OBJECT,
+            DECLARATION_NAME,
+            FQ_NAMES_IN_TYPES
+        )
         map.put(NON_FINAL_MEMBER_IN_FINAL_CLASS, "'open' has no effect in a final class")
         map.put(NON_FINAL_MEMBER_IN_OBJECT, "'open' has no effect in an object")
         map.put(
@@ -1710,7 +1718,7 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
             REDUNDANT_EXPLICIT_BACKING_FIELD,
             "There's no need for an explicit backing field declaration if it has the same type as the property"
         )
-        map.put(ABSTRACT_PROPERTY_IN_PRIMARY_CONSTRUCTOR_PARAMETERS, "This property cannot be declared abstract")
+        map.put(ABSTRACT_PROPERTY_IN_PRIMARY_CONSTRUCTOR_PARAMETERS, "Property in primary constructor cannot be declared abstract")
         map.put(LOCAL_VARIABLE_WITH_TYPE_PARAMETERS_WARNING, "Type parameters for local variables are deprecated")
         map.put(LOCAL_VARIABLE_WITH_TYPE_PARAMETERS, "Local variables are not allowed to have type parameters")
         map.put(EXPLICIT_TYPE_ARGUMENTS_IN_PROPERTY_ACCESS, "A property access cannot have explicit type arguments")

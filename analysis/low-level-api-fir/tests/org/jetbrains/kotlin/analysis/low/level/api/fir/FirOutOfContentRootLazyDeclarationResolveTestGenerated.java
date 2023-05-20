@@ -181,6 +181,12 @@ public class FirOutOfContentRootLazyDeclarationResolveTestGenerated extends Abst
     }
 
     @Test
+    @TestMetadata("fileAnnotations.kt")
+    public void testFileAnnotations() throws Exception {
+        runTest("analysis/low-level-api-fir/testdata/lazyResolve/fileAnnotations.kt");
+    }
+
+    @Test
     @TestMetadata("fromLocalHierarchyToOuter.kt")
     public void testFromLocalHierarchyToOuter() throws Exception {
         runTest("analysis/low-level-api-fir/testdata/lazyResolve/fromLocalHierarchyToOuter.kt");
@@ -436,6 +442,12 @@ public class FirOutOfContentRootLazyDeclarationResolveTestGenerated extends Abst
     @TestMetadata("analysis/low-level-api-fir/testdata/lazyResolve/classes")
     @TestDataPath("$PROJECT_ROOT")
     public class Classes {
+        @Test
+        @TestMetadata("actual.kt")
+        public void testActual() throws Exception {
+            runTest("analysis/low-level-api-fir/testdata/lazyResolve/classes/actual.kt");
+        }
+
         @Test
         public void testAllFilesPresentInClasses() throws Exception {
             KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("analysis/low-level-api-fir/testdata/lazyResolve/classes"), Pattern.compile("^(.+)\\.kt$"), null, true);

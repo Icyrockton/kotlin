@@ -1,6 +1,9 @@
 // !LANGUAGE: +ContextReceivers
-// TARGET_BACKEND: JVM_IR
+// IGNORE_BACKEND: JS_IR
 // WITH_STDLIB
+
+// MUTE_SIGNATURE_COMPARISON_K2: ANY
+// ^ KT-57435
 
 data class Counter(var i: Int = 0)
 
